@@ -23,6 +23,11 @@ export type FoodType = 'proteinFeed' | 'growthFruit' | 'crystalHerbs'
 
 export type TreatType = 'spicyBerry' | 'moonFruit' | 'crystalCandy'
 
+/** How a creature's line branches within its bloodline (README §19 breeding outcomes). */
+export type BranchType = 'founder' | 'mainline' | 'dominant' | 'recessive' | 'mutation'
+
+export type BranchCounts = Record<BranchType, number>
+
 export interface DnaTraits {
   body: string
   eyes: string
@@ -44,6 +49,7 @@ export interface Bloodline {
   victories: number
   mutations: number
   heritageValue: number
+  branchCounts: BranchCounts
 }
 
 export interface Monster {
@@ -51,6 +57,7 @@ export interface Monster {
   name: string
   dna: DnaTraits
   bloodlineId: string
+  branchType: BranchType
   generation: number
   stage: LifeStage
   behavior: BehaviorStage
@@ -70,6 +77,7 @@ export interface Egg {
   id: string
   dna: DnaTraits
   bloodlineId: string | null
+  branchType: BranchType | null
   generation: number
   incubationProgress: number
   incubationRequired: number

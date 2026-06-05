@@ -20,6 +20,7 @@ import {
   breedDna,
   createFounderBloodline,
   generateMonsterName,
+  incrementBranchCount,
   randomDna,
   randomPreferredFood,
 } from './genetics'
@@ -63,6 +64,8 @@ function createMonsterFromEgg(
   const bloodlineId = egg.bloodlineId ?? uid('bloodline')
   let updatedBloodlines = [...bloodlines]
 
+  const branchType = egg.branchType ?? (egg.bloodlineId ? 'mainline' : 'founder')
+
   if (!egg.bloodlineId) {
     const founderId = uid('monster')
     const line = createFounderBloodline(founderId, egg.dna)
@@ -70,7 +73,12 @@ function createMonsterFromEgg(
   } else {
     updatedBloodlines = updatedBloodlines.map((bl) =>
       bl.id === bloodlineId
-        ? { ...bl, descendants: bl.descendants + 1, heritageValue: bl.heritageValue + 2 }
+        ? {
+            ...bl,
+            descendants: bl.descendants + 1,
+            heritageValue: bl.heritageValue + (branchType === 'mutation' ? 5 : 2),
+            branchCounts: incrementBranchCount(bl.branchCounts, branchType),
+          }
         : bl,
     )
   }
@@ -80,6 +88,7 @@ function createMonsterFromEgg(
     name: generateMonsterName(egg.dna),
     dna: egg.dna,
     bloodlineId,
+    branchType,
     generation: egg.generation,
     stage: 'infant',
     behavior: 'healthy',
@@ -191,6 +200,7 @@ function createInitialState(): GameState {
     name: generateMonsterName(starterDna),
     dna: starterDna,
     bloodlineId: bloodline.id,
+    branchType: 'founder',
     generation: 1,
     stage: 'juvenile',
     behavior: 'healthy',
@@ -214,6 +224,7 @@ function createInitialState(): GameState {
       id: uid('egg'),
       dna,
       bloodlineId: null,
+      branchType: null,
       generation: 1,
       incubationProgress: 0,
       incubationRequired: 3 + Math.floor(Math.random() * 2),
@@ -447,7 +458,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       const treatBoost =
         state.sanctuary.treats.moonFruit > 0 ? 0.05 : 0
 
-      const { dna, hasMutation } = breedDna(parentA, parentB, treatBoost)
+      const { dna, hasMutation, branchType } = breedDna(parentA, parentB, treatBoost)
       const generation = Math.max(parentA.generation, parentB.generation) + 1
       const bloodlineId = parentA.bloodlineId
 
@@ -455,28 +466,22 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         id: uid('egg'),
         dna,
         bloodlineId,
+        branchType,
         generation,
         incubationProgress: 0,
         incubationRequired: 4,
         isRare: hasMutation,
       }
 
-      let bloodlines = state.bloodlines.map((bl) =>
+      const bloodlines = state.bloodlines.map((bl) =>
         bl.id === bloodlineId
           ? {
               ...bl,
               generation: Math.max(bl.generation, generation),
               mutations: bl.mutations + (hasMutation ? 1 : 0),
-              heritageValue: bl.heritageValue + (hasMutation ? 5 : 2),
             }
           : bl,
       )
-
-      if (hasMutation) {
-        bloodlines = bloodlines.map((bl) =>
-          bl.id === bloodlineId ? { ...bl, mutations: bl.mutations + 1 } : bl,
-        )
-      }
 
       const moonFruitUsed = treatBoost > 0 && state.sanctuary.treats.moonFruit > 0
 
@@ -563,6 +568,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         id: uid('egg'),
         dna,
         bloodlineId: null,
+        branchType: null,
         generation: 1,
         incubationProgress: 0,
         incubationRequired: 3 + Math.floor(Math.random() * 3),

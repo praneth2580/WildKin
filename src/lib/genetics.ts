@@ -1,5 +1,5 @@
-import { BLOODLINE_SUFFIXES, MUTATION_TRAITS, TRAIT_POOLS } from '../data/constants'
-import type { DnaTraits, Monster } from '../types/game'
+import { BLOODLINE_SUFFIXES, MUTATION_TRAITS, TRAIT_POOLS, emptyBranchCounts } from '../data/constants'
+import type { BranchCounts, BranchType, DnaTraits, Monster } from '../types/game'
 import { uid } from './ids'
 
 function pick<T>(arr: T[]): T {
@@ -33,48 +33,65 @@ export function generateBloodlineName(dna: DnaTraits): string {
 }
 
 type TraitKey = keyof DnaTraits
+type TraitSource = 'parentA' | 'parentB' | 'random' | 'mutation'
 
 function inheritTrait(
   key: TraitKey,
   parentA: DnaTraits,
   parentB: DnaTraits,
   mutationBoost: number,
-): { value: string; mutated: boolean } {
+): { value: string; source: TraitSource } {
   const roll = Math.random()
   const mutationChance = 0.05 + mutationBoost
 
   if (roll < mutationChance && MUTATION_TRAITS[key]) {
     const pool = MUTATION_TRAITS[key]!
-    return { value: pick(pool), mutated: true }
+    return { value: pick(pool), source: 'mutation' }
   }
 
   if (roll < 0.15) {
-    return { value: randomDna()[key], mutated: false }
+    return { value: randomDna()[key], source: 'random' }
   }
 
   if (roll < 0.55) {
-    return { value: parentA[key], mutated: false }
+    return { value: parentA[key], source: 'parentA' }
   }
 
-  return { value: parentB[key], mutated: false }
+  return { value: parentB[key], source: 'parentB' }
+}
+
+export function resolveBranchType(counts: Record<TraitSource, number>): BranchType {
+  if (counts.mutation > 0) return 'mutation'
+  if (counts.random >= 3) return 'recessive'
+  if (counts.parentA >= counts.parentB + 3) return 'dominant'
+  if (counts.parentB >= counts.parentA + 3) return 'recessive'
+  return 'mainline'
 }
 
 export function breedDna(
   parentA: Monster,
   parentB: Monster,
   treatBoost = 0,
-): { dna: DnaTraits; hasMutation: boolean } {
+): { dna: DnaTraits; hasMutation: boolean; branchType: BranchType } {
   const keys = Object.keys(TRAIT_POOLS) as TraitKey[]
   const dna = {} as DnaTraits
-  let hasMutation = false
+  const sources: Record<TraitSource, number> = {
+    parentA: 0,
+    parentB: 0,
+    random: 0,
+    mutation: 0,
+  }
 
   for (const key of keys) {
     const result = inheritTrait(key, parentA.dna, parentB.dna, treatBoost)
     dna[key] = result.value
-    if (result.mutated) hasMutation = true
+    sources[result.source] += 1
   }
 
-  return { dna, hasMutation }
+  const branchType = resolveBranchType(sources)
+  const hasMutation = branchType === 'mutation'
+
+  return { dna, hasMutation, branchType }
 }
 
 export function randomPreferredFood(): 'proteinFeed' | 'growthFruit' | 'crystalHerbs' {
@@ -83,6 +100,8 @@ export function randomPreferredFood(): 'proteinFeed' | 'growthFruit' | 'crystalH
 }
 
 export function createFounderBloodline(founderId: string, dna: DnaTraits) {
+  const branchCounts = emptyBranchCounts()
+  branchCounts.founder = 1
   return {
     id: uid('bloodline'),
     name: generateBloodlineName(dna),
@@ -92,7 +111,12 @@ export function createFounderBloodline(founderId: string, dna: DnaTraits) {
     victories: 0,
     mutations: 0,
     heritageValue: 10,
+    branchCounts,
   }
+}
+
+export function incrementBranchCount(counts: BranchCounts, branch: BranchType): BranchCounts {
+  return { ...counts, [branch]: counts[branch] + 1 }
 }
 
 export function dnaSummary(dna: DnaTraits): string {

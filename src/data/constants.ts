@@ -1,4 +1,4 @@
-import type { Building, DnaTraits, FoodType } from '../types/game'
+import type { BranchCounts, BranchType, Building, DnaTraits, FoodType } from '../types/game'
 
 export const SAVE_KEY = 'wildkin-save-v1'
 
@@ -103,3 +103,23 @@ export const CARETAKER_NAMES = [
 export const BLOODLINE_SUFFIXES = [
   'fang', 'wing', 'scale', 'bloom', 'storm', 'glow', 'claw', 'veil',
 ]
+
+export const BRANCH_LABELS: Record<BranchType, string> = {
+  founder: 'Founder',
+  mainline: 'Mainline',
+  dominant: 'Dominant',
+  recessive: 'Recessive',
+  mutation: 'Mutation',
+}
+
+export const BRANCH_DESCRIPTIONS: Record<BranchType, string> = {
+  founder: 'Started a new bloodline',
+  mainline: 'Standard trait inheritance',
+  dominant: 'Strong traits from one parent',
+  recessive: 'Hidden traits surfaced',
+  mutation: 'Rare genetic branch',
+}
+
+export function emptyBranchCounts(): BranchCounts {
+  return { founder: 0, mainline: 0, dominant: 0, recessive: 0, mutation: 0 }
+}

@@ -1,5 +1,6 @@
 import type { Egg, GameAction } from '../types/game'
 import { dnaSummary } from '../lib/genetics'
+import { BranchBadge } from './BranchBadge'
 import { MonsterSprite } from './MonsterSprite'
 
 interface Props {
@@ -31,6 +32,8 @@ export function EggSheet({ egg, hasNest, atCapacity, onAction, onClose }: Props)
           <MonsterSprite dna={egg.dna} size={100} stage="egg" />
           <h2>{egg.isRare ? '✦ Rare Egg' : 'Mystery Egg'}</h2>
           {egg.generation > 1 && <p className="egg-sheet__gen">Generation {egg.generation}</p>}
+          {egg.branchType && <BranchBadge branch={egg.branchType} />}
+          {!egg.bloodlineId && <BranchBadge branch="founder" />}
           <p className="egg-sheet__dna">{dnaSummary(egg.dna)}</p>
           <div className="egg-sheet__progress">
             <div className="progress-bar progress-bar--large">

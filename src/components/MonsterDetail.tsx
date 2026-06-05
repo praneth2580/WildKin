@@ -1,6 +1,7 @@
-import { FOOD_LABELS } from '../data/constants'
+import { BRANCH_DESCRIPTIONS, FOOD_LABELS } from '../data/constants'
 import type { Caretaker, FoodType, GameAction, Monster, TreatType } from '../types/game'
 import { dnaSummary } from '../lib/genetics'
+import { BranchBadge } from './BranchBadge'
 import { MonsterSprite } from './MonsterSprite'
 import { TrustBar } from './TrustBar'
 
@@ -34,11 +35,21 @@ export function MonsterDetail({
           <h2>{monster.name}</h2>
           <p className="monster-detail__line">{bloodlineName} · Gen {monster.generation}</p>
           <p className="monster-detail__dna">{dnaSummary(monster.dna)}</p>
-          {monster.isMutated && <span className="badge badge--mutation">Mutated</span>}
+          <div className="monster-detail__badges">
+            <BranchBadge branch={monster.branchType} />
+            {monster.isMutated && monster.branchType !== 'mutation' && (
+              <span className="badge badge--mutation">Mutated traits</span>
+            )}
+          </div>
+          <p className="monster-detail__branch-desc">{BRANCH_DESCRIPTIONS[monster.branchType]}</p>
         </div>
       </div>
 
       <div className="monster-detail__stats">
+        <div className="detail-row">
+          <span>Branch</span>
+          <BranchBadge branch={monster.branchType} />
+        </div>
         <div className="detail-row">
           <span>Stage</span>
           <strong className="capitalize">{monster.stage}</strong>

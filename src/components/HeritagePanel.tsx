@@ -1,4 +1,5 @@
-import type { Bloodline, Sanctuary } from '../types/game'
+import { BRANCH_LABELS } from '../data/constants'
+import type { Bloodline, BranchType, Sanctuary } from '../types/game'
 
 interface Props {
   bloodlines: Bloodline[]
@@ -45,6 +46,15 @@ export function HeritagePanel({ bloodlines, sanctuary }: Props) {
                 <span>{bl.mutations} mutations</span>
                 <span>{bl.heritageValue} heritage</span>
                 <span>{bl.victories} victories</span>
+              </div>
+              <div className="bloodline-card__branches">
+                {(Object.keys(bl.branchCounts) as BranchType[])
+                  .filter((k) => bl.branchCounts[k] > 0)
+                  .map((k) => (
+                    <span key={k} className="branch-count-chip">
+                      {BRANCH_LABELS[k]}: {bl.branchCounts[k]}
+                    </span>
+                  ))}
               </div>
             </div>
           ))}

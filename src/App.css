@@ -1007,6 +1007,57 @@
   color: var(--accent-bright);
 }
 
+.badge--branch {
+  font-size: 0.58rem;
+}
+
+.badge--branch-founder { border-color: var(--gold-dim); color: var(--gold); }
+.badge--branch-mainline { border-color: var(--accent-dim); color: var(--accent-bright); }
+.badge--branch-dominant { border-color: #6a8ab8; color: #a8c8e8; }
+.badge--branch-recessive { border-color: #8a7a9a; color: #c8b8d8; }
+.badge--branch-mutation { border-color: #9a6ab8; color: #d8b8f0; background: rgba(122, 106, 154, 0.25); }
+
+.badge__desc {
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.monster-detail__badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  justify-content: center;
+  margin-top: 0.35rem;
+}
+
+.monster-detail__branch-desc {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-top: 0.25rem;
+}
+
+.monster-card .badge--branch {
+  font-size: 0.52rem;
+  padding: 0.1rem 0.35rem;
+}
+
+.bloodline-card__branches {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin-top: 0.5rem;
+}
+
+.branch-count-chip {
+  font-size: 0.68rem;
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(184, 148, 58, 0.25);
+  border-radius: 6px;
+  padding: 0.15rem 0.4rem;
+  color: var(--text-muted);
+}
+
 /* ── Breeding ─────────────────────────────────────────── */
 .breeding-panel { max-width: 100%; }
 

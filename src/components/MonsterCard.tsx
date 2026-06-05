@@ -1,4 +1,5 @@
 import type { Monster } from '../types/game'
+import { BranchBadge } from './BranchBadge'
 import { MonsterSprite } from './MonsterSprite'
 import { TrustBar } from './TrustBar'
 
@@ -35,6 +36,7 @@ export function MonsterCard({ monster, selected, onClick }: Props) {
         <span className="monster-card__meta">
           {STAGE_LABELS[monster.stage]} · Gen {monster.generation}
         </span>
+        <BranchBadge branch={monster.branchType} />
         {monster.behavior !== 'healthy' && (
           <span className={`monster-card__behavior monster-card__behavior--${monster.behavior}`}>
             {BEHAVIOR_LABELS[monster.behavior]}
