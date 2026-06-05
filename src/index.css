@@ -1,19 +1,29 @@
 :root {
-  --bg-deep: #1a1f16;
-  --bg-panel: #242b1f;
-  --bg-elevated: #2e3628;
-  --border: #3d4a35;
-  --text: #e8ebe4;
+  --bg-deep: #0f1410;
+  --bg-night: #1a2420;
+  --bg-panel: #2a3228;
+  --bg-elevated: #364032;
+  --bg-parchment: #e8dcc8;
+  --bg-parchment-dark: #d4c4a8;
+  --border: #4a5a42;
+  --border-gold: #b8943a;
+  --text: #f0ebe0;
+  --text-dark: #2a2418;
   --text-muted: #9aa892;
-  --accent: #7cb87a;
-  --accent-dim: #5a9a58;
-  --gold: #d4b84a;
+  --text-parchment: #4a3c28;
+  --accent: #6db86a;
+  --accent-bright: #8ed88c;
+  --accent-dim: #4a8a48;
+  --gold: #e8c84a;
+  --gold-dim: #b8943a;
   --trust-good: #6bc96b;
   --trust-warn: #d4a84a;
   --trust-bad: #d47a4a;
   --trust-critical: #c44a4a;
-  --font-sans: 'DM Sans', system-ui, sans-serif;
-  --font-serif: 'DM Serif Display', Georgia, serif;
+  --font-sans: 'Nunito', system-ui, sans-serif;
+  --font-display: 'Cinzel', Georgia, serif;
+  --hud-height: 56px;
+  --dock-height: 72px;
 }
 
 *,
@@ -30,6 +40,7 @@ body {
   color: var(--text);
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
+  overflow: hidden;
 }
 
 #root {
@@ -42,8 +53,8 @@ button {
 }
 
 h1, h2, h3, h4 {
-  font-family: var(--font-serif);
-  font-weight: 400;
+  font-family: var(--font-display);
+  font-weight: 600;
   margin: 0 0 0.5rem;
 }
 

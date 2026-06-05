@@ -1,38 +1,30 @@
 import { useState } from 'react'
 import type { TabId } from './types/game'
 import { useGame } from './hooks/useGame'
-import { Header } from './components/Header'
-import { ResourcesBar } from './components/ResourcesBar'
-import { MonsterCard } from './components/MonsterCard'
-import { MonsterDetail } from './components/MonsterDetail'
-import { EggPanel } from './components/EggPanel'
+import { GameHUD } from './components/GameHUD'
+import { GameDock } from './components/GameDock'
+import { SanctuaryScene } from './components/SanctuaryScene'
+import { CreatureSheet } from './components/CreatureSheet'
+import { EggSheet } from './components/EggSheet'
+import { GameScreen } from './components/GameScreen'
 import { BreedingPanel } from './components/BreedingPanel'
 import { CaretakersPanel } from './components/CaretakersPanel'
 import { BuildingsPanel } from './components/BuildingsPanel'
 import { HeritagePanel } from './components/HeritagePanel'
 import './App.css'
 
-const TABS: { id: TabId; label: string }[] = [
-  { id: 'sanctuary', label: 'Sanctuary' },
-  { id: 'monsters', label: 'Monsters' },
-  { id: 'breeding', label: 'Breeding' },
-  { id: 'caretakers', label: 'Caretakers' },
-  { id: 'buildings', label: 'Buildings' },
-  { id: 'heritage', label: 'Heritage' },
-]
-
 export default function App() {
   const { state, act, reset } = useGame()
-  const [tab, setTab] = useState<TabId>('sanctuary')
-  const [selectedId, setSelectedId] = useState<string | null>(
-    state.monsters[0]?.id ?? null,
-  )
+  const [screen, setScreen] = useState<TabId>('sanctuary')
+  const [selectedMonsterId, setSelectedMonsterId] = useState<string | null>(null)
+  const [selectedEggId, setSelectedEggId] = useState<string | null>(null)
 
   const population = state.monsters.length + state.eggs.length
   const atCapacity = population >= state.sanctuary.capacity
   const overCapacity = population > state.sanctuary.capacity
 
-  const selectedMonster = state.monsters.find((m) => m.id === selectedId)
+  const selectedMonster = state.monsters.find((m) => m.id === selectedMonsterId)
+  const selectedEgg = state.eggs.find((e) => e.id === selectedEggId)
   const hasNest = state.buildings.find((b) => b.id === 'nest')?.built ?? false
   const hasBreedingDen = state.buildings.find((b) => b.id === 'breedingDen')?.built ?? false
   const hasRehabCenter = state.buildings.find((b) => b.id === 'rehabilitationCenter')?.built ?? false
@@ -41,116 +33,56 @@ export default function App() {
   const handleReset = () => {
     if (window.confirm('Start a new sanctuary? Current progress will be lost.')) {
       reset()
-      setSelectedId(null)
-      setTab('sanctuary')
+      setSelectedMonsterId(null)
+      setSelectedEggId(null)
+      setScreen('sanctuary')
     }
   }
 
+  const closeSheets = () => {
+    setSelectedMonsterId(null)
+    setSelectedEggId(null)
+  }
+
+  const goToSanctuary = () => {
+    setScreen('sanctuary')
+    closeSheets()
+  }
+
   return (
-    <div className="app">
-      <Header
+    <div className="game-shell">
+      <GameHUD
         sanctuary={state.sanctuary}
         population={population}
+        overCapacity={overCapacity}
         onExplore={() => act({ type: 'EXPLORE' })}
         onReset={handleReset}
       />
 
-      <ResourcesBar food={state.sanctuary.food} treats={state.sanctuary.treats} />
+      <div className="game-viewport">
+        {screen === 'sanctuary' && (
+          <SanctuaryScene
+            monsters={state.monsters}
+            eggs={state.eggs}
+            buildings={state.buildings}
+            selectedId={selectedMonsterId}
+            onSelectMonster={(id) => {
+              setSelectedEggId(null)
+              setSelectedMonsterId(id)
+            }}
+            onSelectEgg={(id) => {
+              setSelectedMonsterId(null)
+              setSelectedEggId(id)
+            }}
+          />
+        )}
 
-      {overCapacity && (
-        <div className="alert alert--warn">
-          Over capacity! Monsters are at risk of neglect. Release creatures or expand your sanctuary.
-        </div>
-      )}
-
-      <nav className="tabs">
-        {TABS.map((t) => (
-          <button
-            key={t.id}
-            type="button"
-            className={`tabs__btn ${tab === t.id ? 'tabs__btn--active' : ''}`}
-            onClick={() => setTab(t.id)}
+        {screen === 'breeding' && (
+          <GameScreen
+            title="Breeding Den"
+            subtitle="Pair adult monsters to forge new bloodlines"
+            onClose={goToSanctuary}
           >
-            {t.label}
-          </button>
-        ))}
-      </nav>
-
-      <main className="main">
-        {tab === 'sanctuary' && (
-          <div className="sanctuary-layout">
-            <section className="panel">
-              <h2>Monsters</h2>
-              <div className="monster-grid">
-                {state.monsters.map((m) => (
-                  <MonsterCard
-                    key={m.id}
-                    monster={m}
-                    selected={selectedId === m.id}
-                    onClick={() => setSelectedId(m.id)}
-                  />
-                ))}
-              </div>
-            </section>
-            <section className="panel">
-              <h2>Eggs</h2>
-              <EggPanel
-                eggs={state.eggs}
-                hasNest={hasNest}
-                atCapacity={atCapacity}
-                onAction={act}
-              />
-            </section>
-            {selectedMonster && (
-              <section className="panel panel--detail">
-                <MonsterDetail
-                  monster={selectedMonster}
-                  caretakers={state.caretakers}
-                  bloodlineName={
-                    state.bloodlines.find((b) => b.id === selectedMonster.bloodlineId)?.name ?? 'Unknown'
-                  }
-                  onAction={act}
-                  hasRehabCenter={hasRehabCenter}
-                  rehabFull={rehabFull}
-                />
-              </section>
-            )}
-          </div>
-        )}
-
-        {tab === 'monsters' && (
-          <div className="monsters-layout">
-            <section className="panel">
-              <div className="monster-grid">
-                {state.monsters.map((m) => (
-                  <MonsterCard
-                    key={m.id}
-                    monster={m}
-                    selected={selectedId === m.id}
-                    onClick={() => setSelectedId(m.id)}
-                  />
-                ))}
-              </div>
-            </section>
-            {selectedMonster && (
-              <section className="panel panel--detail">
-                <MonsterDetail
-                  monster={selectedMonster}
-                  caretakers={state.caretakers}
-                  bloodlineName={
-                    state.bloodlines.find((b) => b.id === selectedMonster.bloodlineId)?.name ?? 'Unknown'
-                  }
-                  onAction={act}
-                  hasRehabCenter={hasRehabCenter}
-                  rehabFull={rehabFull}
-                />
-              </section>
-            )}
-          </div>
-        )}
-
-        {tab === 'breeding' && (
-          <section className="panel">
             <BreedingPanel
               monsters={state.monsters}
               parentAId={state.breedingPair.parentAId}
@@ -159,37 +91,73 @@ export default function App() {
               atCapacity={atCapacity}
               onAction={act}
             />
-          </section>
+          </GameScreen>
         )}
 
-        {tab === 'caretakers' && (
-          <section className="panel">
-            <CaretakersPanel caretakers={state.caretakers} monsters={state.monsters} />
-          </section>
-        )}
-
-        {tab === 'buildings' && (
-          <section className="panel">
+        {screen === 'buildings' && (
+          <GameScreen
+            title="Sanctuary Grounds"
+            subtitle="Expand your haven with new structures"
+            onClose={goToSanctuary}
+          >
             <BuildingsPanel
               buildings={state.buildings}
               gold={state.sanctuary.gold}
               onAction={act}
             />
-          </section>
+          </GameScreen>
         )}
 
-        {tab === 'heritage' && (
-          <section className="panel">
+        {screen === 'caretakers' && (
+          <GameScreen
+            title="Caretakers"
+            subtitle="The keepers who tend your kin"
+            onClose={goToSanctuary}
+          >
+            <CaretakersPanel caretakers={state.caretakers} monsters={state.monsters} />
+          </GameScreen>
+        )}
+
+        {screen === 'heritage' && (
+          <GameScreen
+            title="Heritage Hall"
+            subtitle="Bloodlines and sanctuary legacy"
+            onClose={goToSanctuary}
+            variant="dark"
+          >
             <HeritagePanel bloodlines={state.bloodlines} sanctuary={state.sanctuary} />
-          </section>
+          </GameScreen>
         )}
-      </main>
+      </div>
 
-      <footer className="footer">
-        <p>
-          Time passes automatically. Feed monsters, hatch eggs, breed bloodlines, and build your legacy.
-        </p>
-      </footer>
+      <GameDock active={screen} onChange={(tab) => {
+        setScreen(tab)
+        if (tab !== 'sanctuary') closeSheets()
+      }} />
+
+      {selectedMonster && (
+        <CreatureSheet
+          monster={selectedMonster}
+          bloodlineName={
+            state.bloodlines.find((b) => b.id === selectedMonster.bloodlineId)?.name ?? 'Unknown'
+          }
+          caretakers={state.caretakers}
+          hasRehabCenter={hasRehabCenter}
+          rehabFull={rehabFull}
+          onAction={act}
+          onClose={() => setSelectedMonsterId(null)}
+        />
+      )}
+
+      {selectedEgg && (
+        <EggSheet
+          egg={selectedEgg}
+          hasNest={hasNest}
+          atCapacity={atCapacity}
+          onAction={act}
+          onClose={() => setSelectedEggId(null)}
+        />
+      )}
     </div>
   )
 }
