@@ -16,7 +16,14 @@ export function EggSheet({ egg, hasNest, atCapacity, onAction, onClose }: Props)
 
   return (
     <div className="creature-sheet-overlay" onClick={onClose} role="presentation">
-      <div className="creature-sheet creature-sheet--egg" onClick={(e) => e.stopPropagation()} role="dialog">
+      <div
+        className="creature-sheet creature-sheet--egg"
+        onClick={(e) => e.stopPropagation()}
+        role="dialog"
+        aria-modal="true"
+        aria-label="Egg details"
+      >
+        <div className="creature-sheet__handle" aria-hidden />
         <button type="button" className="creature-sheet__close" onClick={onClose} aria-label="Close">
           ✕
         </button>

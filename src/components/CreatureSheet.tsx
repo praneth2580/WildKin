@@ -26,21 +26,23 @@ export function CreatureSheet({
         className="creature-sheet"
         onClick={(e) => e.stopPropagation()}
         role="dialog"
+        aria-modal="true"
         aria-label={`${monster.name} details`}
       >
-        <div className="creature-sheet__ornament creature-sheet__ornament--top" />
+        <div className="creature-sheet__handle" aria-hidden />
         <button type="button" className="creature-sheet__close" onClick={onClose} aria-label="Close">
           ✕
         </button>
-        <MonsterDetail
-          monster={monster}
-          caretakers={caretakers}
-          bloodlineName={bloodlineName}
-          onAction={onAction}
-          hasRehabCenter={hasRehabCenter}
-          rehabFull={rehabFull}
-        />
-        <div className="creature-sheet__ornament creature-sheet__ornament--bottom" />
+        <div className="creature-sheet__scroll">
+          <MonsterDetail
+            monster={monster}
+            caretakers={caretakers}
+            bloodlineName={bloodlineName}
+            onAction={onAction}
+            hasRehabCenter={hasRehabCenter}
+            rehabFull={rehabFull}
+          />
+        </div>
       </div>
     </div>
   )

@@ -12,25 +12,29 @@ interface Props {
 }
 
 const BUILDING_POSITIONS: Record<string, { x: number; y: number; label: string }> = {
-  nest: { x: 12, y: 68, label: 'Nest' },
-  foodFarm: { x: 28, y: 72, label: 'Farm' },
-  breedingDen: { x: 72, y: 68, label: 'Den' },
-  trainingGrounds: { x: 85, y: 55, label: 'Training' },
-  researchHut: { x: 8, y: 48, label: 'Research' },
-  heritageHall: { x: 88, y: 38, label: 'Heritage' },
-  rehabilitationCenter: { x: 50, y: 78, label: 'Rehab' },
-  tradingPost: { x: 62, y: 42, label: 'Trade' },
+  nest: { x: 14, y: 70, label: 'Nest' },
+  foodFarm: { x: 30, y: 74, label: 'Farm' },
+  breedingDen: { x: 70, y: 70, label: 'Den' },
+  trainingGrounds: { x: 82, y: 58, label: 'Train' },
+  researchHut: { x: 10, y: 52, label: 'R&D' },
+  heritageHall: { x: 86, y: 42, label: 'Hall' },
+  rehabilitationCenter: { x: 50, y: 80, label: 'Rehab' },
+  tradingPost: { x: 60, y: 46, label: 'Trade' },
 }
 
 function monsterPosition(index: number, total: number): { x: number; y: number } {
-  const cols = Math.min(4, Math.max(2, Math.ceil(Math.sqrt(total))))
+  const cols = total <= 2 ? total : total <= 4 ? 2 : 3
   const row = Math.floor(index / cols)
   const col = index % cols
   const rows = Math.ceil(total / cols)
-  const x = 22 + (col / Math.max(cols - 1, 1)) * 56
-  const y = 38 + (row / Math.max(rows - 1, 1)) * 22
+  const xPad = 18
+  const xSpan = 64
+  const yStart = 32
+  const ySpan = 28
+  const x = xPad + (col / Math.max(cols - 1, 1)) * xSpan
+  const y = yStart + (row / Math.max(rows - 1, 1)) * ySpan
   const jitter = ((index * 7) % 5) - 2
-  return { x: x + jitter * 0.5, y: y + jitter * 0.3 }
+  return { x: x + jitter * 0.4, y: y + jitter * 0.25 }
 }
 
 export function SanctuaryScene({
@@ -71,7 +75,9 @@ export function SanctuaryScene({
 
       {eggs.length > 0 && (
         <div className="scene-nest">
-          <span className="scene-nest__label">Nest · {eggs.length} egg{eggs.length !== 1 ? 's' : ''}</span>
+          <span className="scene-nest__label">
+            {eggs.length} egg{eggs.length !== 1 ? 's' : ''}
+          </span>
           <div className="scene-nest__eggs">
             {eggs.map((egg, i) => (
               <button
@@ -80,9 +86,9 @@ export function SanctuaryScene({
                 className={`scene-egg ${egg.isRare ? 'scene-egg--rare' : ''}`}
                 style={{ animationDelay: `${i * 0.4}s` }}
                 onClick={() => onSelectEgg(egg.id)}
-                title="Incubating egg"
+                aria-label={egg.isRare ? 'Rare egg' : 'Incubating egg'}
               >
-                <MonsterSprite dna={egg.dna} size={36} stage="egg" />
+                <MonsterSprite dna={egg.dna} size={40} stage="egg" />
               </button>
             ))}
           </div>
@@ -102,17 +108,18 @@ export function SanctuaryScene({
               animationDelay: `${(i % 5) * 0.6}s`,
             }}
             onClick={() => onSelectMonster(m.id)}
+            aria-label={`${m.name}, trust ${m.trust} percent`}
           >
             <div className="scene-creature__shadow" />
             <div className="scene-creature__sprite">
-              <MonsterSprite dna={m.dna} size={72} stage={m.stage} />
+              <MonsterSprite dna={m.dna} size={64} stage={m.stage} />
             </div>
             <div className="scene-creature__plate">
               <span className="scene-creature__name">{m.name}</span>
               <TrustBar trust={m.trust} behavior={m.behavior} />
             </div>
             {m.behavior !== 'healthy' && (
-              <span className={`scene-creature__status scene-creature__status--${m.behavior}`}>!</span>
+              <span className={`scene-creature__status scene-creature__status--${m.behavior}`} aria-hidden>!</span>
             )}
           </button>
         )
@@ -120,8 +127,8 @@ export function SanctuaryScene({
 
       {monsters.length === 0 && eggs.length === 0 && (
         <div className="scene-empty">
-          <p>Your sanctuary awaits its first creatures…</p>
-          <p className="scene-empty__hint">Explore the wilds or hatch an egg!</p>
+          <p>Your sanctuary awaits…</p>
+          <p className="scene-empty__hint">Tap Explore or hatch an egg</p>
         </div>
       )}
     </div>

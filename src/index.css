@@ -22,34 +22,50 @@
   --trust-critical: #c44a4a;
   --font-sans: 'Nunito', system-ui, sans-serif;
   --font-display: 'Cinzel', Georgia, serif;
-  --hud-height: 56px;
-  --dock-height: 72px;
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left: env(safe-area-inset-left, 0px);
+  --safe-right: env(safe-area-inset-right, 0px);
+  --hud-height: calc(88px + var(--safe-top));
+  --dock-height: calc(64px + var(--safe-bottom));
+  --touch-min: 44px;
 }
 
 *,
 *::before,
 *::after {
   box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html {
+  height: 100%;
+  height: 100dvh;
 }
 
 body {
   margin: 0;
-  min-height: 100vh;
+  min-height: 100%;
+  min-height: 100dvh;
   font-family: var(--font-sans);
   background: var(--bg-deep);
   color: var(--text);
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
   overflow: hidden;
+  overscroll-behavior: none;
+  touch-action: manipulation;
 }
 
 #root {
-  min-height: 100vh;
+  min-height: 100%;
+  min-height: 100dvh;
 }
 
 button {
   font-family: inherit;
   cursor: pointer;
+  touch-action: manipulation;
 }
 
 h1, h2, h3, h4 {
@@ -64,4 +80,11 @@ p {
 
 .capitalize {
   text-transform: capitalize;
+}
+
+@media (min-width: 768px) {
+  :root {
+    --hud-height: calc(56px + var(--safe-top));
+    --dock-height: calc(72px + var(--safe-bottom));
+  }
 }
