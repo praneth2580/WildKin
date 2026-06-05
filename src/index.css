@@ -1,0 +1,56 @@
+:root {
+  --bg-deep: #1a1f16;
+  --bg-panel: #242b1f;
+  --bg-elevated: #2e3628;
+  --border: #3d4a35;
+  --text: #e8ebe4;
+  --text-muted: #9aa892;
+  --accent: #7cb87a;
+  --accent-dim: #5a9a58;
+  --gold: #d4b84a;
+  --trust-good: #6bc96b;
+  --trust-warn: #d4a84a;
+  --trust-bad: #d47a4a;
+  --trust-critical: #c44a4a;
+  --font-sans: 'DM Sans', system-ui, sans-serif;
+  --font-serif: 'DM Serif Display', Georgia, serif;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: var(--font-sans);
+  background: var(--bg-deep);
+  color: var(--text);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+}
+
+h1, h2, h3, h4 {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  margin: 0 0 0.5rem;
+}
+
+p {
+  margin: 0 0 0.75rem;
+}
+
+.capitalize {
+  text-transform: capitalize;
+}
